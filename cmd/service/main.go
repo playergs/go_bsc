@@ -2,39 +2,55 @@ package main
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"fmt"
+	"log"
+	"os"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	client, err := ethclient.Dial("http://127.0.0.1:8545")
-
-	blockNumber, err := client.BlockNumber(context.Background())
+	err := godotenv.Load()
 	if err != nil {
-		fmt.Printf("Error fetching block number: %v\n", err)
-		panic(err)
+		log.Fatal("Error loading .env file")
+		return
 	}
 
+	// 初始化客户端
+	client, err := ethclient.Dial(os.Getenv("BSC_TEST_RPC_URL"))
+	if err != nil {
+		log.Fatalf("Failed to connect to the BSC network: %v", err)
+	}
+
+	// 加载私钥
+	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
+	if err != nil {
+		log.Fatalf("Failed to parse private key: %v", err)
+	}
+
+	publicKey := privateKey.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		log.Fatal("Cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+	}
+
+	// 公钥地址
+	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+
+	fmt.Printf("Public key: %s\n", fromAddress.Hex())
+
+	// 获取链ID
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
-		fmt.Printf("Error fetching chain ID: %v\n", err)
-		panic(err)
+		log.Fatalf("Failed to get chain ID: %v", err)
 	}
 
-	address := common.HexToAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3")
-	balance, err := client.BalanceAt(context.Background(), address, nil)
-	if err != nil {
-		fmt.Printf("Error fetching balance: %v\n", err)
-		panic(err)
-	}
+	fmt.Printf("Chain ID: %d\n", chainID)
 
-	fmt.Printf("Current block number: %d\n", blockNumber)
-	fmt.Printf("Chain ID: %s\n", chainID)
-	fmt.Printf("Balance: %s\n", balance.String())
-
-	defer client.Close()
+	fmt.Println("Go Ethereum SDK初始化完成")
 }
 
 //var (
