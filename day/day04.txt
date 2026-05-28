@@ -1,0 +1,16 @@
+将 go-ethereum 升级到最新版，使用最新的 abigen --v2 生成的 go代码
+
+1. 卸载原来老的abigen (如果是go install下载的)
+rm $(which abigen)
+
+2. 使用brew管理 ethereum 等工具
+brew install ethereum
+
+3. bindings进行版本区分
+新建v1、v2文件夹，将原来的文件移动到v1
+
+4. 生成v2文件
+abigen --v2 --abi=abi/MyTokenStakingRewardsV1.abi --bin=abi/MyTokenStakingRewardsV1.bin --pkg=token --type=MyTokenStakingRewardsV1 --out=bindings/v2/token/my_token_staking_rewards_v1.go
+
+5. 使用V2进行调用
+

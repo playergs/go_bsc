@@ -41,5 +41,7 @@ Thumbs.db
 .env.local
 .env.*.local
 
+/configs/
+
 # Log files
 *.log
