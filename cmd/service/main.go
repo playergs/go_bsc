@@ -4,11 +4,14 @@ import (
 	"context"
 	"log"
 	"math/big"
+	"time"
 
 	"github.com/w3learn/internal/config"
 	"github.com/w3learn/internal/service"
 	"github.com/w3learn/pkg/client"
 )
+
+var fromBlock = big.NewInt(110180100)
 
 func main() {
 	appConfig, err := config.LoadAppConfig()
@@ -48,7 +51,25 @@ func main() {
 
 	log.Printf("totalSupply: %#v\n", totalSupply)
 
-	//// 质押 & 查询
+	err = tokenService.QueryHistoricalEvents(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = tokenService.SubscribeNewBlocks(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = tokenService.SubscribeEvents(context.Background(), fromBlock)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	time.Sleep(3 * time.Second)
+
+	//质押 & 查询
 	//amount, ok := new(big.Int).SetString("25000000000000000000000000", 10)
 	//
 	//if !ok {
@@ -56,7 +77,7 @@ func main() {
 	//	return
 	//}
 	//
-	//err = tokenService.Stake(amount, 3)
+	//err = tokenService.Stake(context.Background(), amount, 0)
 	//
 	//if err != nil {
 	//	log.Fatal(err)
@@ -77,9 +98,11 @@ func main() {
 	//}
 	//
 	//log.Printf("totalSupply: %#v\n", totalSupply)
+	//
+	//time.Sleep(40 * time.Second)
 
-	// 解质押 & 查询
-	err = tokenService.Withdraw(big.NewInt(6))
+	//解质押 & 查询
+	err = tokenService.Withdraw(context.Background(), big.NewInt(12))
 
 	if err != nil {
 		log.Fatal(err)
@@ -100,4 +123,7 @@ func main() {
 	}
 
 	log.Printf("totalSupply: %#v\n", totalSupply)
+
+	// 防止主协程退出
+	select {}
 }

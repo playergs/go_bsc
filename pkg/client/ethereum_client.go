@@ -32,7 +32,8 @@ func NewClient(
 
 	// 连接RPC
 	var err error = nil
-	c.Client, err = ethclient.DialContext(ctx, cfg.RpcUrl)
+	//c.Client, err = ethclient.DialContext(ctx, cfg.RpcUrl)
+	c.Client, err = ethclient.DialContext(ctx, cfg.RpcWs)
 
 	if err != nil {
 		return nil, err

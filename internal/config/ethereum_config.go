@@ -3,6 +3,7 @@ package config
 type EthereumConfig struct {
 	Network    string          `mapstructure:"network" json:"network"`
 	RpcUrl     string          `mapstructure:"rpc_url" json:"rpc_url"`
+	RpcWs      string          `mapstructure:"rpc_ws" json:"rpc_ws"`
 	PrivateKey string          `mapstructure:"private_key" json:"private_key"`
 	Contracts  ContractsConfig `mapstructure:"contracts" json:"contracts"`
 }
